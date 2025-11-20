@@ -60,6 +60,25 @@ SELECT
     ROUND(AVG(patient_satisfaction), 2) AS avg_satisfaction
 FROM services_weekly;
 
+--Daily Challenge DAY 6
+
+--For each hospital service, calculate:
+--Total patients admitted
+--Total patients refused
+--Admission rate = admitted / requests * 100%
+--Order by admission rate descending
+
+SELECT
+    service,
+    SUM(patients_admitted) AS total_admitted,
+    SUM(patients_refused) AS total_refused,
+    ROUND(
+        (SUM(patients_admitted) * 100.0 / SUM(patients_request)), 
+        2
+    ) AS admission_rate_percent
+FROM services_weekly
+GROUP BY service
+ORDER BY admission_rate_percent DESC;
 
 
 
