@@ -48,6 +48,19 @@ from patients
 order by satisfaction DESC
 LIMIT 5 OFFSET 2;
 
+--Daily Challenge DAY 5
+
+--Calculate the total number of patients admitted, total patients refused, 
+--and average patient satisfaction across all services and weeks. Round the 
+--average to 2 decimals?
+
+SELECT 
+    SUM(patients_admitted) AS total_admitted,
+    SUM(patients_refused) AS total_refused,
+    ROUND(AVG(patient_satisfaction), 2) AS avg_satisfaction
+FROM services_weekly;
+
+
 
 
 
