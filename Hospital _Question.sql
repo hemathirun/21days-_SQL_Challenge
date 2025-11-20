@@ -80,6 +80,20 @@ FROM services_weekly
 GROUP BY service
 ORDER BY admission_rate_percent DESC;
 
+----Daily Challenge DAY 7
+
+--Identify services that refused more than 100 patients 
+--in total AND had average satisfaction below 80?
+
+SELECT
+    service,
+    SUM(patients_refused) AS total_refused,
+    AVG(patient_satisfaction) AS avg_satisfaction
+FROM services_weekly
+GROUP BY service
+HAVING 
+    SUM(patients_refused) > 100
+    AND AVG(patient_satisfaction) < 80;
 
 
 
