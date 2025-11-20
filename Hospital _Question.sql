@@ -239,6 +239,58 @@ ORDER BY
     weeks_present DESC,
     s.staff_name;
 
+----Daily Challenge Day 15
+--Comprehensive service analysis for week 20:
+--service name,
+--total patients admitted that week,
+--total patients refused,
+--average patient satisfaction,
+--count of staff assigned to service,
+--count of staff present that week.
+--Order by patients admitted descending.
+
+
+-- Count staff per service
+WITH staff_assigned AS (
+    SELECT
+        service,
+        COUNT(*) AS total_staff_assigned
+    FROM staff
+    GROUP BY service
+),
+
+-- Count staff present in week 20 per service
+staff_present AS (
+    SELECT
+        s.service,
+        COUNT(*) AS total_staff_present_week
+    FROM staff_schedule ss
+    JOIN staff s
+        ON ss.staff_id = s.staff_id
+    WHERE ss.week = 20
+      AND ss.present = 1
+    GROUP BY s.service
+)
+
+SELECT
+    sw.service,
+    SUM(sw.patients_admitted)      AS total_admitted,
+    SUM(sw.patients_refused)       AS total_refused,
+    AVG(sw.patient_satisfaction)   AS avg_patient_satisfaction,
+    COALESCE(sa.total_staff_assigned, 0)      AS staff_assigned,
+    COALESCE(sp.total_staff_present_week, 0)  AS staff_present_week
+FROM services_weekly sw
+LEFT JOIN staff_assigned sa
+    ON sw.service = sa.service
+LEFT JOIN staff_present sp
+    ON sw.service = sp.service
+WHERE sw.week = 20
+GROUP BY
+    sw.service,
+    sa.total_staff_assigned,
+    sp.total_staff_present_week
+ORDER BY
+    total_admitted DESC;
 
 
 
