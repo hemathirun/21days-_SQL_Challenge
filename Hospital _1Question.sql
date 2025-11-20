@@ -9,6 +9,7 @@
 SELECT DISTINCT service
 FROM services_weekly
 order by service;
+
 --Daily Challenge DAY 2
 
 --Question : 
