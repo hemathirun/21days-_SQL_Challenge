@@ -177,6 +177,35 @@ FROM services_weekly
 GROUP BY event_status
 ORDER BY avg_patient_satisfaction DESC;
 
+----Daily Challenge Day 13
+
+--Question: Create a comprehensive report showing patient_id, patient name, age, 
+--service, and the total number of staff members available in their service. 
+--Only include patients from services that have more than 5 staff members.
+--Order by number of staff descending, then by patient name.
+
+-- Step 1: Count staff by service
+
+WITH staff_count AS (
+    SELECT 
+        service,
+        COUNT(*) AS total_staff
+    FROM staff
+    GROUP BY service
+)
+-- Step 2: Join with patients and filter
+SELECT 
+    p.patient_id,
+    p.name AS patient_name,
+    p.age,
+    p.service,
+    sc.total_staff
+FROM patients p
+INNER JOIN staff_count sc
+    ON p.service = sc.service
+WHERE sc.total_staff > 5
+ORDER BY sc.total_staff DESC, p.name ASC;
+
 
 
 
