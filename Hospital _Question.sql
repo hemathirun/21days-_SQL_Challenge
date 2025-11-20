@@ -35,6 +35,19 @@ FROM services_weekly
 ORDER BY patients_refused DESC
 LIMIT 5;
 
+----Daily Challenge DAY 4
+
+--Find the 3rd to 7th highest patient satisfaction scores, showing patient_id, name, 
+--service, and satisfaction?
+
+select patient_id,
+       name,
+	   service,
+	   satisfaction
+from patients
+order by satisfaction DESC
+LIMIT 5 OFFSET 2;
+
 
 
 
