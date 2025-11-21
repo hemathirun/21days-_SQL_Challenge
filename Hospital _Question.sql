@@ -317,6 +317,36 @@ WHERE p.service IN (
 )
 ORDER BY p.service, p.patient_id;
 
+---Daily Challenge Day 17
+
+--Create a report showing each service with: service name, total patients admitted, 
+--the difference between their total admissions and the average admissions across 
+--all services, and a rank indicator ('Above Average', 'Average', 'Below Average').
+--Order by total patients admitted descending.
+
+WITH service_totals AS (
+    SELECT
+        service,
+        SUM(patients_admitted) AS total_admitted
+    FROM services_weekly
+    GROUP BY service
+),
+overall_avg AS (
+    SELECT AVG(total_admitted) AS avg_admitted
+    FROM service_totals
+)
+SELECT
+    st.service,
+    st.total_admitted,
+    st.total_admitted - oa.avg_admitted AS diff_from_avg,
+    CASE
+        WHEN st.total_admitted > oa.avg_admitted THEN 'Above Average'
+        WHEN st.total_admitted = oa.avg_admitted THEN 'Average'
+        ELSE 'Below Average'
+    END AS rank_indicator
+FROM service_totals st
+CROSS JOIN overall_avg oa
+ORDER BY st.total_admitted DESC;
 
 
 
