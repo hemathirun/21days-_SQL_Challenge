@@ -441,4 +441,88 @@ FROM services_weekly
 WHERE week BETWEEN 10 AND 20
 ORDER BY service, week;
 
+--Daily Challenge Day 21
+
+--Create a comprehensive hospital performance dashboard using CTEs. Calculate: 1) 
+--Service-level metrics (total admissions, refusals, avg satisfaction),
+--2) Staff metrics per service (total staff, avg weeks present), 3) 
+--Patient demographics per service (avg age, count). Then combine all 
+--three CTEs to create a final report showing service name, 
+--all calculated metrics, and an overall performance score 
+--(weighted average of admission rate and satisfaction).
+---Order by performance score descending.
+
+WITH service_metrics AS (
+    SELECT
+        service,
+        SUM(patients_admitted) AS total_admitted,
+        SUM(patients_refused)  AS total_refused,
+        AVG(patient_satisfaction) AS avg_satisfaction,
+        SUM(patients_request) AS total_requests,
+        CASE 
+            WHEN SUM(patients_request) = 0 THEN 0
+            ELSE (SUM(patients_admitted)::numeric * 100.0 
+                  / SUM(patients_request))
+        END AS admission_rate      -- in %
+    FROM services_weekly
+    GROUP BY service
+),
+staff_weeks AS (
+    SELECT
+        s.service,
+        s.staff_id,
+        SUM(CASE WHEN ss.present = 1 THEN 1 ELSE 0 END) AS weeks_present
+    FROM staff s
+    LEFT JOIN staff_schedule ss
+        ON s.staff_id = ss.staff_id
+    GROUP BY s.service, s.staff_id
+),
+staff_metrics AS (
+    SELECT
+        service,
+        COUNT(*) AS total_staff,
+        AVG(weeks_present) AS avg_weeks_present
+    FROM staff_weeks
+    GROUP BY service
+),
+patient_metrics AS (
+    SELECT
+        service,
+        AVG(age)   AS avg_age,
+        COUNT(*)   AS patient_count
+    FROM patients
+    GROUP BY service
+),
+combined AS (
+    SELECT
+        sm.service,
+        sm.total_admitted,
+        sm.total_refused,
+        sm.avg_satisfaction,
+        sm.admission_rate,
+        st.total_staff,
+        st.avg_weeks_present,
+        pm.avg_age,
+        pm.patient_count,
+        -- overall performance score: 60% admission rate, 40% satisfaction
+        (0.6 * sm.admission_rate + 0.4 * sm.avg_satisfaction)
+            AS performance_score
+    FROM service_metrics sm
+    LEFT JOIN staff_metrics   st ON sm.service = st.service
+    LEFT JOIN patient_metrics pm ON sm.service = pm.service
+)
+SELECT
+    service,
+    total_admitted,
+    total_refused,
+    avg_satisfaction,
+    admission_rate,
+    total_staff,
+    avg_weeks_present,
+    avg_age,
+    patient_count,
+    performance_score
+FROM combined
+ORDER BY performance_score DESC;
+
 
